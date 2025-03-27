@@ -60,4 +60,4 @@ lines(density(credit_limit), col = "red", lwd = 2)
 
 #6.c
 frecuencia_relativa <- prop.table(table(tenure))
-print(frecuencia_relativa)
+barplot(frecuencia_relativa)

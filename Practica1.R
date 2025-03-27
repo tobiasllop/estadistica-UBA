@@ -58,6 +58,6 @@ plot.ecdf(tenure, main="Func de distribucion de tenure")
 hist(credit_limit, probability=TRUE, main="histograma de credit_limit") #Preguntar por lo de probability=TRUE
 lines(density(credit_limit), col = "red", lwd = 2)
 
-#6.c - Preguntar
-frecuencia_relativa <- prop.table(table(purchases))
+#6.c
+frecuencia_relativa <- prop.table(table(tenure))
 print(frecuencia_relativa)

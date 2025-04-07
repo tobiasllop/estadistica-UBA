@@ -1,0 +1,221 @@
+---
+title: "Estimación de Densidad por Kernel - Datos de Nieve en Buffalo"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introducción
+
+En este ejercicio trabajaremos con datos reales de la ciudad de Buffalo (EE.UU.), que contienen las mediciones de la cantidad de nieve caída (en pulgadas) durante los inviernos de 1910/1911 a 1972/1973. 
+
+Nuestro objetivo es estimar la función de densidad de probabilidad de esta variable utilizando el método de estimación de densidad por kernel (KDE). Esta técnica permite estimar una función de densidad $f$ sin asumir una forma paramétrica para la misma.
+
+La fórmula general de la estimación de densidad es:
+
+$$
+\widehat{f}_h(x) = \frac{1}{nh} \sum_{i=1}^n K\left( \frac{x - X_i}{h} \right)
+$$
+
+Donde:
+
+* $n$ es el tamaño de la muestra,
+
+*	$h$ es el ancho de ventana (bandwidth),
+
+*	$K$ es el núcleo (kernel).
+
+Vamos a trabajar con tres núcleos:
+
+- Rectangular: $K(t) = \frac{1}{2} \mathbb{I}_{[-1,1]}(t)$
+
+-	Gaussiano: $K(t) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2} t^2}$
+
+-	Epanechnikov: $K(t) = \frac{3}{4}(1 - t^2) \mathbb{I}_{[-1,1]}(t)$
+
+⸻
+
+1. Cargar los datos. Buscar en la penstaña `Prácticas` la carpeta `conjuntos de datos` del campus el archivo `buffalo.txt`.
+
+```{r}
+# COMPLETAR: cargar los datos del archivo 'buffalo.txt'
+# hint ver help(scan)
+buffalo <- scan(file="~/Descargas/buffalo.txt")
+
+```
+
+2. Implementar los núcleos: dado un valor $x$ devuelva el resultado de evaluar los respectivos núcleos en $x$.
+```{r}
+# COMPLETAR: implementar núcleo rectangular
+rectangular <- function(t) {
+  if (-1 <= t && t <= 1) {
+    res <- 1/2
+  }
+  else {
+    res <- 0
+  }
+  return(res)
+}
+
+# COMPLETAR: implementar núcleo gaussiano
+gaussiano <- function(t) {
+  res = (1/sqrt(2*pi)) * exp((-1/2) * t**2) 
+  return(res)
+}
+
+# COMPLETAR: implementar núcleo de Epanechnikov
+epanechnikov <- function(t) {
+  if (-1 <= t && t <= 1) {
+    res <- 3/4 * (1 - t**2) 
+  }
+  else {
+    res <- 0
+  }
+  return(res)
+} 
+```
+
+3. Implementar la función `kde`: Escribir una función general kde que reciba un vector de datos, un valor h, una grilla de evaluación x_s y un kernel K.
+
+```{r}
+# COMPLETAR: función kde
+kde <- function(datos, h, x_s, K) {
+  n <- length(datos)
+  f_s <- numeric(length(x_s))
+  
+  for (j in seq_along(x_s)) {
+    # COMPLETAR: aplicar el kernel y calcular la densidad
+   
+  }
+  
+  return(f_s)
+}
+
+```
+
+3. Comparar densidades para distintos valores de h y núcleos
+
+```{r}
+# solo correr la celda
+x_s <- seq(min(datos), max(datos), length.out = 200)
+h_vals <- c(10, 20, 30)
+colores <- c("darkgray", "gray", "lightgray")
+
+plot(NULL, xlim = range(x_s), ylim = c(0, 0.03),
+     main = "KDE con núcleo Rectangular", xlab = "Nieve (pulgadas)", ylab = "Densidad")
+
+for (i in seq_along(h_vals)) {
+  h <- h_vals[i]
+  f_s <- kde(datos, h, x_s, rectangular)
+  lines(x_s, f_s, col = colores[i], lwd = 2, lty = i)
+}
+
+legend("topright", legend = paste("h =", h_vals), lty = 1:3, col = colores, lwd = 2)
+```
+
+```{r}
+# Gaussiano
+colores <- c("darkgray", "gray", "lightgray")
+h_vals <- c(10, 20, 30)
+
+plot(NULL, xlim = range(x_s), ylim = c(0, 0.03),
+     main = "KDE con núcleo Gaussiano", xlab = "Nieve (pulgadas)", ylab = "Densidad")
+
+for (i in seq_along(h_vals)) {
+  h <- h_vals[i]
+  f_s <- kde(datos, h, x_s, gaussiano)
+  lines(x_s, f_s, col = colores[i], lwd = 2, lty = i)
+}
+
+legend("topright", legend = paste("h =", h_vals), lty = 1:3, col = colores, lwd = 2)
+
+# Epanechnikov
+plot(NULL, xlim = range(x_s), ylim = c(0, 0.03),
+     main = "KDE con núcleo Epanechnikov", xlab = "Nieve (pulgadas)", ylab = "Densidad")
+
+for (i in seq_along(h_vals)) {
+  h <- h_vals[i]
+  f_s <- kde(datos, h, x_s, epanechnikov)
+  lines(x_s, f_s, col = colores[i], lwd = 2, lty = i)
+}
+
+legend("topright", legend = paste("h =", h_vals), lty = 1:3, col = colores, lwd = 2)
+```
+
+Nota: también podemos usar la función `density`
+```{r}
+# COMPLETAR: usar density() con los tres kernels
+d1 <- 
+d2 <- 
+d3 <- 
+
+# Graficar
+plot(d1, main = "Estimaciones con density() y h=5", col = "blue", lwd = 2)
+lines(d2, col = "red", lwd = 2)
+lines(d3, col = "darkgreen", lwd = 2)
+
+# Leyenda con texto más chico
+legend("topleft",
+       legend = c("Gaussiano", "Rectangular", "Epanechnikov"),
+       col = c("blue", "red", "darkgreen"),
+       lwd = 1,
+       cex = 0.5)  # tamaño de texto reducido
+```
+
+## Estimación del h óptimo
+
+1. Método de Silverman
+```{r}
+# COMPLETAR: calcular h_silverman
+n <- length(datos)
+s <- sd(datos)
+iqr <- IQR(datos)
+
+h_sil <- 
+h_sil
+```
+
+2. Usando validación cruzada
+```{r}
+# COMPLETAR: función de log-verosimilitud
+cv_score <- function(h, datos, K) {
+  n <- length(datos)
+  score <- 0  
+  
+  for (i in 1:n) {
+    x_i <- datos[i]
+    x_omit <- datos[-i]
+    
+    # COMPLETAR: estimar densidad dejando uno afuera
+    f_i <- 
+    
+    score <- score + log(f_i + 1e-10) # evitar log(0)
+  }
+  
+  return(score)
+}
+
+# Grilla de h y cálculo
+h_grid <- seq(1, 50, length.out = 100)
+scores <- sapply(h_grid, cv_score, datos = datos, K = gaussiano)
+
+h_cv <- h_grid[which.max(scores)]
+h_cv
+```
+
+3. Graficar y comparar
+```{r}
+# KDE con h_sil y h_cv
+f_s_sil <- kde(datos, h_sil, x_s, gaussiano)
+f_s_cv <- kde(datos, h_cv, x_s, gaussiano)
+
+plot(x_s, f_s_sil, type = "l", col = "blue", lwd = 2,
+     main = "Densidades con h óptimo", xlab = "Nieve (pulgadas)", ylab = "Densidad")
+lines(x_s, f_s_cv, col = "red", lwd = 2)
+legend("topleft", legend = c("Silverman", "CV"), col = c("blue", "red"), lwd = 2)
+```
+ 
+
+

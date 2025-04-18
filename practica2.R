@@ -146,6 +146,26 @@ legend("topright", legend = c("EMV", "Momentos", "Modificado"),
        col = c("black", "red", "blue"), pch = c(16, 17, 15), lwd = 2)
 
 #################################################
-# 2.16
+# 2.19
 #################################################
 
+#2.19.a
+n <- 10
+theta_0 <- 1
+pmom <- c()
+pemv <- c()
+k <- 1000
+
+for (i in 1:k){
+  X_n <- runif(n, min = 0, max=theta_0)
+  theta_mom <- 2 * mean(X_n)
+  theta_mv <- max(X_n)
+  epsilon <- 0.01
+  pmom <- append(pmom, Mod(theta_mom - theta_0) < epsilon)
+  pemv <- append(pemv, Mod(theta_mv - theta_0) < epsilon)
+}
+
+print(paste("Probabilidad de que |theta_mom - theta_0| < e: ", sum(pmom)/k))
+print(paste("Probabilidad de que |theta_mv - theta_0| < e: ", sum(pemv)/k))
+
+# 2.19.b y 2.19.c me dieron fiaca hacerlos :p
